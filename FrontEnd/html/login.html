@@ -1,0 +1,64 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <style>
+        body {
+            background-image: url("loginBack.jpg");
+            background-size: 2000px 1030px;
+        }
+
+        div {
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        input {
+            margin-right: auto;
+            margin-left: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div style="text-align: center;">
+        <div class="jumbotron bg-cover text-white"
+            style="background-image: linear-gradient(to bottom, rgba(87, 195, 173,0.6) 0%,rgba(87, 195, 173,0.6) 100%), url(school.jpg)">
+            <h1 class="display-4">Login Page</h1>
+            <hr class="my-4">
+        </div>
+        <label class="w3-text-teal"><b>User Name:</b></label>
+        <input type="text" style="width: 300;" placeholder="enter student name" id="name"
+            class="w3-input w3-border w3-light-grey"><br>
+        <label class="w3-text-teal"><b>Email:</b></label>
+        <input type="text" style="width: 300;" placeholder="enter student email" id="email"
+            class="w3-input w3-border w3-light-grey"><br>
+        <input type="button" value="login" onclick="login()">
+    </div>
+
+    <!-- checks for each student if name and email matches and if so the login is successfull -->
+    <script>
+        let studentName = document.getElementById("name");
+        let studentEmail = document.getElementById("email");
+        async function login() {
+            let fullName = studentName.value;
+            let email = studentEmail.value;
+            let resp = await fetch('http://localhost:8000/students');
+            if (resp.ok) {
+                let data = await resp.json()
+                data.forEach(student => {
+                    if (student.FullName == fullName && student.email == email) {
+                        location.href = "allStudents.html"
+                    }
+
+                });
+
+            }
+
+        }
+
+    </script>
+</body>
+
+</html>

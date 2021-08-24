@@ -1,0 +1,155 @@
+<html>
+
+<head>
+    <link rel="style sheet" href="C:\Users\Ariel\Desktop\BigProject\FrontEnd\css\design.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <style>
+        body {
+            background-image: url("background2.jpg");
+            background-size: 2000px 1030px;
+        }
+    </style>
+
+</head>
+
+<body id="bdy" class="container" onload="showGrades()">
+    <div class="jumbotron bg-cover text-white"
+        style="background-image: linear-gradient(to bottom, rgba(87, 195, 173,0.6) 0%,rgba(87, 195, 173,0.6) 100%), url(school.jpg) ;">
+        <h1 class="display-4">Grades Page</h1>
+        <a class="btn btn-primary btn-lg" href="allStudents.html" role="button">Back To Main Page</a>
+        <hr class="my-4">
+    </div>
+    <div id="div">
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"
+        integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF"
+        crossorigin="anonymous"></script>
+
+
+    <script>
+        let body = document.getElementById("bdy");
+        let div = document.getElementById("div");
+        let data = sessionStorage.getItem("grades");
+        let students = JSON.parse(data);
+
+        async function showGrades() {
+            let table = document.createElement("table");
+            table.border = "1";
+            div.appendChild(table);
+            let row = document.createElement("tr");
+            table.appendChild(row);
+            let date = document.createElement("td");
+            row.appendChild(date);
+            let grade = document.createElement("td");
+            row.appendChild(grade);
+            let updateButton = document.createElement("td");
+            row.appendChild(updateButton);
+
+
+            // 
+            date.innerText = "Date"
+            grade.innerText = "Grade"
+            updateButton.innerText = "Update Grade"
+
+            // forming the grades table
+            students.Grades.forEach(grade => {
+                let gradeRow = document.createElement("tr");
+                table.appendChild(gradeRow);
+                let testDate = document.createElement("td");
+                gradeRow.appendChild(testDate);
+                let dateOfGrade = document.createElement("input");
+                dateOfGrade.type = "text";
+                testDate.appendChild(dateOfGrade);
+                let testGrade = document.createElement("td");
+                gradeRow.appendChild(testGrade);
+                let pointsOfGrade = document.createElement("input");
+                pointsOfGrade.type = "text";
+                testGrade.appendChild(pointsOfGrade);
+                let updateSpecificGrade = document.createElement("td");
+                gradeRow.appendChild(updateSpecificGrade);
+                let deleteSpecificGrade = document.createElement("td");
+                gradeRow.appendChild(deleteSpecificGrade);
+
+                dateOfGrade.value = grade.DateOfExam.slice(0, 10);
+                pointsOfGrade.value = grade.Grade;
+                let update = document.createElement("input");
+                update.type = "button";
+                update.value = "updateGrade";
+                update.addEventListener("click", () => { updateGrade(students._id, grade._id, dateOfGrade, pointsOfGrade) });
+                updateSpecificGrade.appendChild(update);
+
+
+            })
+            let addGradeBtn = document.createElement("input");
+            addGradeBtn.type = "button";
+            addGradeBtn.value = "add Grade";
+            addGradeBtn.addEventListener("click", () => { addGrade(students._id, newDateOfExam, newGradePoints) });
+            body.appendChild(addGradeBtn);
+        }
+        let newDateOfExam = document.createElement("input");
+        newDateOfExam.type = "date";
+        body.appendChild(newDateOfExam);
+        let newGradePoints = document.createElement("input");
+        newGradePoints.type = "text";
+        body.appendChild(newGradePoints);
+
+
+
+
+        // functions
+
+
+
+        // update
+        async function updateGrade(studentId, gradeId, dateOfGrade, pointsOfGrade) {
+            let updatedGrade = {
+                DateOfExam: dateOfGrade.value,
+                Grade: pointsOfGrade.value
+            }
+            let resp = await fetch(`http://localhost:8000/grades/${studentId}/${gradeId}`, {
+                method: 'put',
+                body: JSON.stringify(updatedGrade),
+                headers: { "content-type": "application/json" }
+            })
+            if (resp.ok) {
+                let resp = await fetch(`http://localhost:8000/students/${studentId}`)
+                if (resp.ok) {
+                    let data = await resp.json()
+                    sessionStorage.setItem("grades", JSON.stringify(data))
+                }
+                location.href = "grades.html"
+            }
+        }
+
+        // add Grade 
+
+        async function addGrade(studentId, newDateOfExam, newGradePoints) {
+            let newGrade = {
+                DateOfExam: newDateOfExam.value,
+                Grade: newGradePoints.value
+            }
+            let resp = await fetch(`http://localhost:8000/grades/${studentId}`, {
+                method: 'post',
+                body: JSON.stringify(newGrade),
+                headers: { 'content-type': "application/json" }
+            })
+            if (resp.ok) {
+                let resp = await fetch(`http://localhost:8000/students/${studentId}`)
+                if (resp.ok) {
+                    let data = await resp.json()
+                    sessionStorage.setItem("grades", JSON.stringify(data))
+                }
+                location.href = "grades.html"
+            }
+        }
+    </script>
+</body>
+
+</html>
